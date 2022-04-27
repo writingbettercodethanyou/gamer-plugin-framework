@@ -1,0 +1,20 @@
+# Ignore anti-build-system files
+out/
+build/
+bin/
+
+# Ignore VS Code files
+.vscode/
+*.code-workspace
+
+# Ignore gay IDE files
+.settings/
+.classpath
+.project
+
+# Ignore chad IDE files
+.idea/
+*.iml
+
+# Ignore chad Maven files
+target/
