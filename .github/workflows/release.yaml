@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure Git User
+        run: |
+          git config user.email "writingbettercodethanyou@gmail.com"
+          git config user.name "writingbettercodethanyou"
+          git config commit.gpgSign true
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
+          server-id: github
+          server-username: GITHUB_USERNAME
+          server-password: GITHUB_TOKEN
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PRIVATE_KEY_PASSPHRASE
+
+      - name: Build Maven
+        run: mvn -B package --file pom.xml
+
+      - name: Publish Release to GitHub
+        run: mvn -DignoreSnapshots=true release:prepare release:perform
+        env:
+          GITHUB_USERNAME: writingbettercodethanyou
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
