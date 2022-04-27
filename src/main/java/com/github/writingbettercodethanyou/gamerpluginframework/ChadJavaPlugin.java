@@ -29,7 +29,9 @@ public abstract class ChadJavaPlugin extends JavaPlugin {
     protected void onServiceSetup(ServiceRegistry.Builder services) {
     }
 
-    public ServiceRegistry getServiceRegistry() {
+    protected ServiceRegistry getServiceRegistry() {
+        if (serviceRegistry == null)
+            throw new NullPointerException("service registry has not been instantiated because super.onEnable() was not called before trying to access the service registry");
         return serviceRegistry;
     }
 
