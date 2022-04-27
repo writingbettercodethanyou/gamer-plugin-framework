@@ -19,7 +19,7 @@ public final class ServiceRegistry {
         }
 
         public <T> Builder addTransient(Class<T> targetClass, Class<? extends T> implementationClass) {
-            bindingMap.put(targetClass, (serviceRegistry) -> serviceRegistry.getInstance(implementationClass));
+            bindingMap.put(targetClass, (serviceRegistry) -> serviceRegistry.createInstance(implementationClass));
             return this;
         }
 
@@ -29,7 +29,7 @@ public final class ServiceRegistry {
 
                 @Override
                 public T apply(ServiceRegistry serviceRegistry) {
-                    return (instance == null ? instance = serviceRegistry.getInstance(implementationClass) : instance);
+                    return (instance == null ? instance = serviceRegistry.createInstance(implementationClass) : instance);
                 }
             });
             return this;
@@ -53,12 +53,7 @@ public final class ServiceRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getInstance(Class<T> classs) {
-        Function<ServiceRegistry, T> function = (Function<ServiceRegistry, T>) bindingMap.get(classs);
-
-        if (function != null)
-            return function.apply(this);
-
+    private <T> T createInstance(Class<T> classs) {
         for (Constructor<?> constructor : classs.getConstructors()) {
             if (!Arrays.stream(constructor.getParameterTypes()).allMatch(bindingMap::containsKey))
                 continue;
@@ -73,5 +68,13 @@ public final class ServiceRegistry {
         }
 
         return null;
+    }
+
+    public <T> T getInstance(Class<T> classs) {
+        @SuppressWarnings("unchecked")
+        Function<ServiceRegistry, T> function = (Function<ServiceRegistry, T>) bindingMap.get(classs);
+        if (function != null)
+            return function.apply(this);
+        return createInstance(classs);
     }
 }
