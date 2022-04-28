@@ -4,7 +4,7 @@
 
     <groupId>com.github.writingbettercodethanyou</groupId>
     <artifactId>gamer-plugin-framework</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
