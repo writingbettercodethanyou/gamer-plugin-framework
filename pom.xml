@@ -4,7 +4,7 @@
 
     <groupId>com.github.writingbettercodethanyou</groupId>
     <artifactId>gamer-plugin-framework</artifactId>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -16,7 +16,7 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/${scm.url}.git</developerConnection>
-        <tag>v0.2</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
