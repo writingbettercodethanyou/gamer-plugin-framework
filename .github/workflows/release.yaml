@@ -38,3 +38,12 @@ jobs:
           GITHUB_USERNAME: writingbettercodethanyou
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
+
+      - name: Merge to Developer Branch
+        run: |
+          git checkout main
+          git pull
+          git checkout dev
+          git pull
+          git merge main
+          git push
