@@ -1,5 +1,8 @@
 package com.github.writingbettercodethanyou.gamerpluginframework.config;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.lang.reflect.Constructor;
@@ -7,6 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.BiFunction;
 
 public final class ConfigReader<T> {
@@ -35,6 +39,25 @@ public final class ConfigReader<T> {
 
         // non-primitive classes
         put(String.class, ConfigurationSection::getString);
+
+        // bukkit classes
+        put(World.class, (section, path) -> {
+            String value = section.getString(path);
+            try {
+                return Bukkit.getWorld(UUID.fromString(value));
+            } catch (IllegalArgumentException ignored) {
+                return Bukkit.getWorld(value);
+            }
+        });
+        put(Location.class, (section, path) ->
+            new Location(
+                    readValue(World.class, section, "world"),
+                    readValue(double.class, section, "x"),
+                    readValue(double.class, section, "y"),
+                    readValue(double.class, section, "z"),
+                    readValue(float.class, section, "yaw"),
+                    readValue(float.class, section, "pitch"))
+        );
     }};
 
     public ConfigReader(Class<T> configClass) {
@@ -43,6 +66,21 @@ public final class ConfigReader<T> {
         } catch (NoSuchMethodException exception) {
             throw new IllegalArgumentException("config class must have an empty constructor", exception);
         }
+    }
+
+    public void addReader(Class<?> targetClass, BiFunction<ConfigurationSection, String, Object> readFunction) {
+        readerFunctions.put(targetClass, readFunction);
+    }
+
+    public <V> V readValue(Class<V> expectedClass, ConfigurationSection configuration, String path) {
+        BiFunction<ConfigurationSection, String, Object> readerFunction = readerFunctions.get(expectedClass);
+        V value;
+        if(readerFunction != null) {
+            value = (V) readerFunction.apply(configuration, path);
+        } else {
+            value = new ConfigReader<>(expectedClass).readConfig(configuration.getConfigurationSection(path));
+        }
+        return value;
     }
 
     public T readConfig(ConfigurationSection configuration) {
@@ -54,14 +92,7 @@ public final class ConfigReader<T> {
         }
 
         for (Field field : config.getClass().getDeclaredFields()) {
-            BiFunction<ConfigurationSection, String, Object> readerFunction = readerFunctions.get(field.getType());
-            Object value;
-            if(readerFunction != null) {
-                value = readerFunction.apply(configuration, getConfigPath(field));
-            } else {
-                value = new ConfigReader<>(field.getType()).readConfig(configuration.getConfigurationSection(getConfigPath(field)));
-            }
-
+            Object  value        = readValue(field.getType(), configuration, getConfigPath(field));
             boolean changeAccess = !field.canAccess(config);
             if (changeAccess)
                 field.setAccessible(true);
