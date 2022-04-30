@@ -10,11 +10,12 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 // TODO 2022/04/30: fix scoreboard bugging out, maybe use packets instead?
 public final class EasyScoreboard {
 
-    private static final Map<Player, EasyScoreboard> PLAYER_SCOREBOARD_MAP = new HashMap<>();
+    private static final Map<Player, EasyScoreboard> PLAYER_SCOREBOARD_MAP = new WeakHashMap<>();
 
     public static EasyScoreboard createScoreboard(Player player, String title) {
         if (PLAYER_SCOREBOARD_MAP.containsKey(player))
