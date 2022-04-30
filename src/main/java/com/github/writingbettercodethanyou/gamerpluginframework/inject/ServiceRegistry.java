@@ -18,9 +18,17 @@ public final class ServiceRegistry {
             return new ServiceRegistry(bindingMap);
         }
 
+        public <T> Builder addTransient(Class<T> targetClass) {
+            return addTransient(targetClass, targetClass);
+        }
+
         public <T> Builder addTransient(Class<T> targetClass, Class<? extends T> implementationClass) {
             bindingMap.put(targetClass, (serviceRegistry) -> serviceRegistry.createInstance(implementationClass));
             return this;
+        }
+
+        public <T> Builder addSingleton(Class<T> targetClass) {
+            return addSingleton(targetClass, targetClass);
         }
 
         public <T> Builder addSingleton(Class<T> targetClass, Class<? extends T> implementationClass) {
@@ -32,6 +40,11 @@ public final class ServiceRegistry {
                     return (instance == null ? instance = serviceRegistry.createInstance(implementationClass) : instance);
                 }
             });
+            return this;
+        }
+
+        public <T> Builder addSingleton(T implementation) {
+            bindingMap.put(implementation.getClass(), (serviceRegistry) -> implementation);
             return this;
         }
 
@@ -50,6 +63,7 @@ public final class ServiceRegistry {
 
     public ServiceRegistry(Map<Class<?>, Function<ServiceRegistry, ?>> bindingMap) {
         this.bindingMap = bindingMap;
+        bindingMap.computeIfAbsent(ServiceRegistry.class, (k) -> (serviceRegistry) -> serviceRegistry);
     }
 
     @SuppressWarnings("unchecked")
