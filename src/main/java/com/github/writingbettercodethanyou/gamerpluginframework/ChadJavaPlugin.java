@@ -9,6 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -50,6 +51,15 @@ public abstract class ChadJavaPlugin extends JavaPlugin {
         MessageService messageService = new YamlMessageService(messagesFile, messageDefaults);
         messageService.loadMessages();
         return messageService;
+    }
+
+    protected void registerListener(Listener listener) {
+        getServer().getPluginManager().registerEvents(listener, this);
+    }
+
+
+    protected void registerListener(Class<? extends Listener> listenerClass) {
+        getServer().getPluginManager().registerEvents(serviceRegistry.getInstance(listenerClass), this);
     }
 
     private PluginCommand ensureCommandExists(String commandName) {
