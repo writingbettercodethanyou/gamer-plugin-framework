@@ -63,6 +63,7 @@ public final class ServiceRegistry {
 
     public ServiceRegistry(Map<Class<?>, Function<ServiceRegistry, ?>> bindingMap) {
         this.bindingMap = bindingMap;
+        bindingMap.computeIfAbsent(ServiceRegistry.class, (k) -> (serviceRegistry) -> serviceRegistry);
     }
 
     @SuppressWarnings("unchecked")
