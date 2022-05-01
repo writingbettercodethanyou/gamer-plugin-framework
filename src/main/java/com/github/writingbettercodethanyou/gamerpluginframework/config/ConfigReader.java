@@ -51,12 +51,12 @@ public final class ConfigReader<T> {
         });
         put(Location.class, (section, path) ->
             new Location(
-                    readValue(World.class, section, "world"),
-                    readValue(double.class, section, "x"),
-                    readValue(double.class, section, "y"),
-                    readValue(double.class, section, "z"),
-                    readValue(float.class, section, "yaw"),
-                    readValue(float.class, section, "pitch"))
+                    readValue(World.class, section, path + ".world"),
+                    readValue(double.class, section, path + ".x"),
+                    readValue(double.class, section, path + ".y"),
+                    readValue(double.class, section, path + ".z"),
+                    readValue(float.class, section, path + ".yaw"),
+                    readValue(float.class, section, path + ".pitch"))
         );
     }};
 

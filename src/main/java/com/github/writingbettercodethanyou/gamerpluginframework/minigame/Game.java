@@ -1,28 +1,32 @@
 package com.github.writingbettercodethanyou.gamerpluginframework.minigame;
 
 import com.github.writingbettercodethanyou.gamerpluginframework.inject.ServiceRegistry;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 
 public final class Game implements Listener {
 
     private final ServiceRegistry serviceRegistry;
+    private final JavaPlugin plugin;
     private final GameState defaultState;
 
     private final Map<Player, PlayerState> playerStateMap = new WeakHashMap<>();
     private GameState state;
     private boolean running;
 
-    public Game(ServiceRegistry serviceRegistry, Class<? extends GameState> defaultState) {
-        this(serviceRegistry, serviceRegistry.getInstance(defaultState));
+    public Game(ServiceRegistry serviceRegistry, JavaPlugin plugin, Class<? extends GameState> defaultState) {
+        this(serviceRegistry, plugin, serviceRegistry.getInstance(defaultState));
     }
 
-    public Game(ServiceRegistry serviceRegistry, GameState defaultState) {
+    public Game(ServiceRegistry serviceRegistry, JavaPlugin plugin, GameState defaultState) {
         this.serviceRegistry = serviceRegistry;
+        this.plugin = plugin;
         this.defaultState = defaultState;
     }
 
@@ -95,6 +99,7 @@ public final class Game implements Listener {
         running = true;
         state = defaultState;
         if (state != null) {
+            Bukkit.getPluginManager().registerEvents(state, plugin);
             state.onSwitchTo(getPlayerStateMap());
             state.updateScoreboards();
         }
@@ -129,6 +134,7 @@ public final class Game implements Listener {
             HandlerList.unregisterAll(this.state);
         }
         this.state = state;
+        Bukkit.getPluginManager().registerEvents(state, plugin);
         state.onSwitchTo(getPlayerStateMap());
         playerStateMap.forEach(state::onEntry);
         state.updateScoreboards();
